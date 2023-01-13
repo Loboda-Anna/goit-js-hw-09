@@ -1,10 +1,10 @@
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import Notiflix from 'notiflix';
 
 const timerEl = document.querySelector('.timer');
 const fields = document.querySelectorAll('.field');
 const values = document.querySelectorAll('.value');
-const labels = document.querySelectorAll('.label');
 const startBtn = document.querySelector('button[data-start]');
 const daysValueEl = document.querySelector('span[data-days]');
 const hoursValueEl = document.querySelector('span[data-hours]');
@@ -18,55 +18,38 @@ const options = {
   minuteIncrement: 1,
 
   onClose(selectedDates) {
-    let selectedDateMs = selectedDates[0].getTime();
-    let currentDateMs = Date.now();
-    if (selectedDateMs <= currentDateMs) {
-      window.alert('Please choose a date in the future');
+    if (selectedDates[0] <= Date.now()) {
+      Notiflix.Notify.failure('Please choose a date in the future');
       startBtn.disabled = true;
     } else {
+      Notiflix.Notify.success('Successfully! Press START');
       startBtn.disabled = false;
-    }
-    let differenceMs = selectedDateMs - currentDateMs;
-    if (differenceMs > 0) {
-      return selectedDateMs;
     }
   },
 };
 
-flatpickr(document.querySelector('#datetime-picker'), options);
-
-timerEl.style.display = 'flex';
-timerEl.style.gap = '20px';
-timerEl.style.marginTop = '20px';
-
-const styledFieldEls = Array.from(fields).map(field => {
-  field.style.display = 'flex';
-  field.style.flexDirection = 'column';
-  field.style.alignItems = 'center';
-  field.style.textTransform = 'uppercase';
-});
-
-const styledValueEls = Array.from(values).map(value => {
-  value.style.fontSize = '45px';
-  value.style.fontWeight = '500';
-});
+const flatpickrInit = flatpickr(
+  document.querySelector('#datetime-picker'),
+  options
+);
 
 startBtn.disabled = true;
 
 startBtn.addEventListener('click', onStartBtnClick);
 
-function onStartBtnClick(onClose) {
-  //   let selectedDateMs = 1674207000000;
-
-  setInterval(() => {
+function onStartBtnClick() {
+  let selectedDateMs = flatpickrInit.selectedDates[0].getTime();
+  const timerId = setInterval(() => {
     let differenceMs = selectedDateMs - new Date();
-    console.log(convertMs(differenceMs));
     let differenceMsObj = convertMs(differenceMs);
     let { days, hours, minutes, seconds } = differenceMsObj;
-    daysValueEl.textContent = days;
-    hoursValueEl.textContent = hours;
-    minutesValueEl.textContent = minutes;
-    secondsValueEl.textContent = seconds;
+    daysValueEl.textContent = addLeadingZero(days);
+    hoursValueEl.textContent = addLeadingZero(hours);
+    minutesValueEl.textContent = addLeadingZero(minutes);
+    secondsValueEl.textContent = addLeadingZero(seconds);
+    if (differenceMs < 1000) {
+      clearInterval(timerId);
+    }
   }, 1000);
 }
 
@@ -87,4 +70,23 @@ function convertMs(ms) {
 
   return { days, hours, minutes, seconds };
 }
-// console.log();
+function addLeadingZero(value) {
+  return String(value).padStart(2, '0');
+}
+
+
+timerEl.style.display = 'flex';
+timerEl.style.gap = '20px';
+timerEl.style.marginTop = '20px';
+
+const styledFieldEls = Array.from(fields).map(field => {
+  field.style.display = 'flex';
+  field.style.flexDirection = 'column';
+  field.style.alignItems = 'center';
+  field.style.textTransform = 'uppercase';
+});
+
+const styledValueEls = Array.from(values).map(value => {
+  value.style.fontSize = '45px';
+  value.style.fontWeight = '500';
+});
