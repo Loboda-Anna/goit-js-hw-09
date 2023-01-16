@@ -22,7 +22,7 @@ function onFormInput(event) {
 function onFormSubmit(event) {
   event.preventDefault();
   setTimeout(() => {
-    for (position = 1; position <= formData.amount; position += 1) {
+    for (let position = 1; position <= formData.amount; position += 1) {
       let delay = formData.delay * position;
       createPromise(position, delay)
         .then(({ position, delay }) => {
