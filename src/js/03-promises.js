@@ -1,10 +1,6 @@
 import Notiflix from 'notiflix';
 
 const formEl = document.querySelector('.form');
-const delayEl = document.querySelector('.form input[name="delay"]');
-const stepEl = document.querySelector('.form input[name="step"]');
-const amountEl = document.querySelector('.form input[name="amount"]');
-const submitBtn = document.querySelector('.form button[type="submit"]');
 
 formEl.addEventListener('submit', onFormSubmit);
 
@@ -26,6 +22,7 @@ function onFormSubmit(event) {
       });
     delayValue += +step.value;
   }
+  formEl.reset();
 }
 function createPromise(position, delay) {
   const promise = new Promise((res, rej) => {
